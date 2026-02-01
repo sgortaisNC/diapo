@@ -13,6 +13,6 @@
 
 <div class="item">
     <h2>{file}</h2>
-    <img src="/src/lib/assets/imgs/{file}" height="100" alt="">
+    <img src="/api/images/{file}" height="100" alt="">
     <button onclick={() => deleteImage(file)}>Delete</button>
 </div> 

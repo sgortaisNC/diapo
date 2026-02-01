@@ -22,7 +22,7 @@
         
         {#each data.fileList as file}
             <div class="item">
-                <img src="/src/lib/assets/imgs/{file}" height="100" alt="">
+                <img src="/api/images/{file}" height="100" alt="">
                 <button onclick={() => deleteImage(file)}>Delete</button>
             </div> 
         {/each}
