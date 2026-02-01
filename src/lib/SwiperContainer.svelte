@@ -16,7 +16,7 @@ class="mySwiper"
   css-mode="true"
 >
 {#each images as image}
-<swiper-slide><img src={"/api/images/" + image} alt=""></swiper-slide>
+<swiper-slide><img src={image.url || image} alt=""></swiper-slide>
 {/each}
 
 </swiper-container>

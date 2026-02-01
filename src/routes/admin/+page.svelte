@@ -1,14 +1,14 @@
  <script lang="ts">
     export let data;
 
-    async function deleteImage(file: string) {
+    async function deleteImage(file: { name: string; url: string }) {
         const response = await fetch(`/api/remove`, {
             method: 'DELETE',
-            body: JSON.stringify({ file })
+            body: JSON.stringify({ url: file.url })
         });
         const removed: { ok: boolean } = await response.json();
         if (removed.ok) {
-            data.fileList = data.fileList.filter((f: string) => f !== file);
+            data.fileList = data.fileList.filter((f: { name: string; url: string }) => f.url !== file.url);
         }
     }
 </script>
@@ -22,7 +22,7 @@
         
         {#each data.fileList as file}
             <div class="item">
-                <img src="/api/images/{file}" height="100" alt="">
+                <img src={file.url} height="100" alt={file.name}>
                 <button onclick={() => deleteImage(file)}>Delete</button>
             </div> 
         {/each}

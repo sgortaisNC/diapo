@@ -1,16 +1,22 @@
 import { json, type RequestHandler } from '@sveltejs/kit';
-import fs from 'node:fs';
-import path from 'node:path';
+import { del } from '@vercel/blob';
 
 export const DELETE: RequestHandler = async ({ request }) => {
-    const { file } = await request.json();
-    const filePath = path.join(process.cwd(), 'src/lib/assets/imgs', file);
+    const { url } = await request.json();
     
-    // Vérifier si le fichier existe avant de le supprimer
-    if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
-        return json({ message: 'Image deleted', ok: true });
+    if (!url) {
+        return json({ message: 'URL is required', ok: false }, { status: 400 });
     }
     
-    return json({ message: 'File not found', ok: false }, { status: 404 });
+    try {
+        // Supprimer depuis Vercel Blob
+        await del(url);
+        return json({ message: 'Image deleted', ok: true });
+    } catch (error) {
+        console.error('Delete error:', error);
+        return json({ 
+            message: 'Delete failed', 
+            ok: false 
+        }, { status: 500 });
+    }
 }
