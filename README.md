@@ -1,42 +1,49 @@
-# sv
+# Diapo
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+Application de diaporama avec gestion d'images utilisant SvelteKit et Vercel Blob.
 
-## Creating a project
+## Configuration Vercel Blob
 
-If you're seeing this, you've probably already done this step. Congrats!
+Cette application utilise Vercel Blob pour stocker les images. Pour que l'upload fonctionne, vous devez configurer le token d'accès :
 
-```sh
-# create a new project
-npx sv create my-app
+### Sur Vercel (Production)
+
+1. Allez dans votre projet Vercel → **Settings** → **Environment Variables**
+2. Ajoutez une variable d'environnement :
+   - **Name**: `BLOB_READ_WRITE_TOKEN`
+   - **Value**: Votre token Vercel Blob (disponible dans le dashboard Vercel Blob)
+   - **Environments**: Production, Preview, Development
+
+### En local (Développement)
+
+Créez un fichier `.env` à la racine du projet :
+
+```env
+BLOB_READ_WRITE_TOKEN=votre_token_ici
 ```
 
-To recreate this project with the same configuration:
+Pour obtenir votre token :
+1. Allez sur [Vercel Dashboard](https://vercel.com/dashboard)
+2. Sélectionnez votre projet → **Storage** → **Blob**
+3. Cliquez sur votre store (ex: "images")
+4. Copiez le token depuis les paramètres du store
+
+## Développement
 
 ```sh
-# recreate this project
-pnpm dlx sv create --template minimal --types ts --install pnpm .
+pnpm install
+pnpm dev
 ```
 
-## Developing
-
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+## Build
 
 ```sh
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
+pnpm build
+pnpm preview
 ```
 
-## Building
+## Déploiement
 
-To create a production version of your app:
+Le projet est configuré pour Vercel avec l'adapter `@sveltejs/adapter-vercel`.
 
-```sh
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+**Important**: Assurez-vous que la variable d'environnement `BLOB_READ_WRITE_TOKEN` est configurée dans Vercel avant de déployer.
