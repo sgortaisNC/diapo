@@ -1,5 +1,6 @@
 import { env } from '$env/dynamic/private';
 import mysql from 'mysql2/promise';
+import { getEventSettings } from '$lib/server/eventSettings';
 
 export async function load() {
 	const host = env.BDD_HOST;
@@ -8,7 +9,8 @@ export async function load() {
 	const database = env.BDD_NAME;
 
 	if (!host || !user || !password || !database) {
-		return { fileList: [] };
+		const settings = await getEventSettings();
+		return { fileList: [], settings };
 	}
 
 	try {
@@ -32,9 +34,12 @@ export async function load() {
 			url: row.src as string
 		}));
 
-		return { fileList };
+		const settings = await getEventSettings();
+
+		return { fileList, settings };
 	} catch (error) {
 		console.error('Error loading images from database (dashboard):', error);
-		return { fileList: [] };
+		const settings = await getEventSettings();
+		return { fileList: [], settings };
 	}
 }

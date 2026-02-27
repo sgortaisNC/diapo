@@ -4,15 +4,57 @@
 
 	let { data }: PageProps = $props();
 	const images = $derived(data.fileList ?? []);
+	const settings = $derived(data.settings);
+
+	const durationSeconds = $derived(settings.slider_interval_seconds || 10);
+	const durationMs = $derived(durationSeconds * 1000);
+
+	let currentIndex = $state(0);
+	let progress = $state(0);
+	let remainingMs = $state(0);
+
+	let timerId: ReturnType<typeof setInterval> | null = null;
+
+	function resetTimer() {
+		remainingMs = durationSeconds * 1000;
+		progress = 0;
+		if (timerId) {
+			clearInterval(timerId);
+		}
+		timerId = setInterval(() => {
+			remainingMs -= 100;
+			if (remainingMs <= 0) {
+				remainingMs = durationSeconds * 1000;
+			}
+			const total = durationSeconds * 1000 || 1;
+			progress = 1 - remainingMs / total;
+		}, 100);
+	}
+
+	$effect(() => {
+		// Redémarre le timer si la durée change
+		resetTimer();
+		return () => {
+			if (timerId) clearInterval(timerId);
+		};
+	});
+
+	function handleSlideChange(event: CustomEvent<{ activeIndex: number }>) {
+		currentIndex = event.detail.activeIndex ?? 0;
+		resetTimer();
+	}
+
+	const remainingSeconds = $derived(Math.ceil(remainingMs / 1000));
+	const currentDepositorName = $derived(images[currentIndex]?.name ?? '');
 </script>
 
 <svelte:head>
-	<title>Wedding Gala 2024 - Live Gallery</title>
+	<title>{settings.event_title} - Galerie en direct</title>
 </svelte:head>
 
 <div class="relative h-screen w-full flex flex-col items-center justify-center bg-background-dark text-white font-display overflow-hidden">
 	<div class="absolute inset-0 z-0">
-		<SwiperContainer {images} />
+		<SwiperContainer {images} on:slideChange={handleSlideChange} />
 	</div>
 	<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40 pointer-events-none z-10" aria-hidden="true"></div>
 
@@ -24,18 +66,25 @@
 						<path d="M4 4H17.3334V17.3334H30.6666V30.6666H44V44H4V4Z" fill="currentColor" />
 					</svg>
 				</div>
-				<h1 class="text-2xl font-bold tracking-[0.2em] uppercase text-white/90">Wedding Gala 2024</h1>
+				<h1 class="text-2xl font-bold tracking-[0.2em] uppercase text-white/90">
+					{settings.event_title}
+				</h1>
 			</div>
 			<div
 				class="rounded-full px-6 py-2 flex items-center gap-6 border border-primary/20 backdrop-blur-xl"
 				style="background: rgba(34, 30, 16, 0.6)"
 			>
 				<span class="material-symbols-outlined text-primary text-xl">timer</span>
-				<p class="text-sm font-semibold tracking-widest text-primary/90">NEXT SLIDE IN 10s</p>
+				<p class="text-sm font-semibold tracking-widest text-primary/90">
+					Prochaine photo dans {remainingSeconds}s
+				</p>
 			</div>
 		</div>
 		<div class="w-full h-1 bg-white/10 rounded-full overflow-hidden">
-			<div class="h-full bg-primary shadow-[0_0_10px_rgba(244,192,37,0.8)] w-2/3 transition-all duration-1000"></div>
+			<div
+				class="h-full bg-primary shadow-[0_0_10px_rgba(244,192,37,0.8)] transition-[width] duration-150 ease-linear"
+				style={`width: ${Math.min(100, Math.max(0, progress * 100))}%`}
+			></div>
 		</div>
 	</div>
 
@@ -45,12 +94,16 @@
 				class="p-8 rounded-xl flex flex-col gap-2 max-w-md border border-primary/20 backdrop-blur-xl"
 				style="background: rgba(34, 30, 16, 0.6)"
 			>
-				<p class="text-primary/70 text-xs font-bold tracking-[0.3em] uppercase">Shared Moments</p>
-				<h2 class="text-4xl font-bold text-white tracking-tight">Captured by Julianna</h2>
-				<div class="flex items-center gap-2 mt-2">
-					<div class="size-2 rounded-full bg-primary animate-pulse"></div>
-					<p class="text-white/60 text-sm font-medium">Shared 2 minutes ago</p>
-				</div>
+				<p class="text-primary/70 text-xs font-bold tracking-[0.3em] uppercase">
+					Moments partagés
+				</p>
+				<h2 class="text-4xl font-bold text-white tracking-tight">
+					{#if currentDepositorName}
+						{settings.hero_caption_prefix} {currentDepositorName}
+					{:else}
+						Galerie en direct
+					{/if}
+				</h2>
 			</div>
 		</div>
 		<div class="flex flex-col items-end gap-6">
@@ -74,11 +127,15 @@
 			<div class="flex gap-4 pr-4">
 				<div class="flex items-center gap-2">
 					<span class="material-symbols-outlined text-primary text-sm">photo_library</span>
-					<span class="text-white/80 text-xs font-bold tracking-widest uppercase">{images.length} Photos</span>
+					<span class="text-white/80 text-xs font-bold tracking-widest uppercase">
+						{images.length} photos
+					</span>
 				</div>
 				<div class="flex items-center gap-2 border-l border-white/20 pl-4">
 					<span class="material-symbols-outlined text-primary text-sm">group</span>
-					<span class="text-white/80 text-xs font-bold tracking-widest uppercase">142 Guests</span>
+					<span class="text-white/80 text-xs font-bold tracking-widest uppercase">
+						142 {settings.guest_count_label}
+					</span>
 				</div>
 			</div>
 		</div>

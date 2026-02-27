@@ -34,8 +34,8 @@
 	/>
 	<main class="flex-1 flex flex-col overflow-hidden">
 		<AdminHeader
-			title="Moderation Queue"
-			badge="Live Event"
+			title="Modération des photos"
+			badge="Événement en direct"
 			liveView={liveView}
 			onLiveViewToggle={() => (liveView = !liveView)}
 			onRefresh={handleRefresh}

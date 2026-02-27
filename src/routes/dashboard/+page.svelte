@@ -1,11 +1,12 @@
 <script lang="ts">
-	import type { PageProps } from './$types';
-	import { onMount } from 'svelte';
-	import { browser } from '$app/environment';
+import type { PageProps } from './$types';
+import { onMount } from 'svelte';
+import { browser } from '$app/environment';
 
 	type FileItem = { name: string; url: string };
 
-	let { data }: PageProps = $props();
+let { data }: PageProps = $props();
+const settings = $derived(data.settings);
 
 	let fileList = $state<FileItem[]>([]);
 	let uploadProgress = $state<number | null>(null);
@@ -73,7 +74,7 @@ $effect(() => {
 </script>
 
 <svelte:head>
-	<title>Julie & Marc - Partagez vos souvenirs</title>
+	<title>{settings.host_names} - Partagez vos souvenirs</title>
 </svelte:head>
 
 <div class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white min-h-screen selection:bg-primary/30 font-display">
@@ -83,7 +84,7 @@ $effect(() => {
 		<div class="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
 			<div class="flex items-center gap-3">
 				<span class="material-symbols-outlined text-primary text-2xl">celebration</span>
-				<h2 class="text-lg font-bold tracking-tight uppercase">Julie & Marc</h2>
+				<h2 class="text-lg font-bold tracking-tight uppercase">{settings.host_names}</h2>
 			</div>
 			<a href="/" class="p-2 hover:bg-primary/10 rounded-lg transition-colors">
 				<span class="material-symbols-outlined text-white">menu</span>
@@ -94,10 +95,10 @@ $effect(() => {
 	<main class="max-w-5xl mx-auto px-6 pt-12 pb-32">
 		<section class="text-center mb-12">
 			<h1 class="text-4xl md:text-5xl font-bold tracking-tight mb-4 text-white">
-				Partagez vos souvenirs de la soirée
+				{settings.event_title}
 			</h1>
 			<p class="text-slate-400 text-lg max-w-xl mx-auto">
-				Capturez les plus beaux instants de notre mariage et faites vivre la galerie en direct.
+				{settings.event_description}
 			</p>
 		</section>
 
@@ -188,7 +189,7 @@ $effect(() => {
 				</label>
 			</form>
 			<p class="text-[10px] text-slate-500 uppercase tracking-widest text-center">
-				Les photos sont partagées avec Julie & Marc. Respectez l'intimité des invités.
+				Les photos sont partagées avec {settings.host_names}. Respectez l'intimité des invités.
 			</p>
 		</div>
 	</footer>

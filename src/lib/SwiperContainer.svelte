@@ -1,25 +1,43 @@
 <script lang="ts">
-	import { register } from 'swiper/element/bundle';
-	import { getContext } from 'svelte';
+import { register } from 'swiper/element/bundle';
+import { getContext, onMount, createEventDispatcher } from 'svelte';
 
-	interface ImageItem {
-		name?: string;
-		url: string;
-	}
+interface ImageItem {
+	name?: string;
+	url: string;
+}
 
-	let { images = getContext('images') ?? [] }: { images?: ImageItem[] | string[] } = $props();
+const dispatch = createEventDispatcher();
 
-	register();
+let { images = getContext('images') ?? [] }: { images?: ImageItem[] | string[] } = $props();
+
+let swiperEl: HTMLElement;
+
+register();
+
+onMount(() => {
+	if (!swiperEl) return;
+	// @ts-expect-error - swiper est ajouté dynamiquement par la lib
+	const instance = swiperEl.swiper;
+	if (!instance) return;
+
+	instance.on('slideChange', () => {
+		dispatch('slideChange', { activeIndex: instance.realIndex ?? instance.activeIndex ?? 0 });
+	});
+});
 </script>
 
 <swiper-container
-class="mySwiper"
-  space-between="30"
-  autoplay-delay="10000"
-  loop="true"
-  speed="500"
-  slides-per-view="1"
-  css-mode="true"
+	bind:this={swiperEl}
+	class="mySwiper"
+	space-between="30"
+	loop="true"
+	speed="800"
+	slides-per-view="1"
+	effect="fade"
+	fade-effect-cross-fade="true"
+	autoplay-delay="10000"
+	autoplay-disable-on-interaction="false"
 >
 {#each images as image}
 	<swiper-slide>
