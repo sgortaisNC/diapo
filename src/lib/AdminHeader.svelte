@@ -7,8 +7,8 @@
 		onRefresh?: () => void;
 	}
 	let {
-		title = 'Moderation Queue',
-		badge = 'Live Event',
+		title = 'Modération des photos',
+		badge = 'Événement en direct',
 		liveView = false,
 		onLiveViewToggle,
 		onRefresh
@@ -25,7 +25,7 @@
 	<div class="flex items-center space-x-6">
 		{#if onLiveViewToggle}
 			<div class="flex items-center space-x-3">
-				<span class="text-sm text-gray-400 font-medium">Live View</span>
+				<span class="text-sm text-gray-400 font-medium">Vue en direct</span>
 				<button
 					type="button"
 					aria-label="Toggle live view"
@@ -47,7 +47,7 @@
 				class="bg-gold-primary hover:bg-gold-light text-dark-bg font-bold py-2 px-6 rounded-md transition-all duration-300 text-sm"
 				onclick={onRefresh}
 			>
-				Refresh Feed
+				Actualiser
 			</button>
 		{/if}
 	</div>
