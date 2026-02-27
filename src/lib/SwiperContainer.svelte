@@ -1,9 +1,15 @@
-<script>
-  import { register } from 'swiper/element/bundle';
-  import { getContext } from 'svelte';
-  register();
-  
-  let images = getContext('images');
+<script lang="ts">
+	import { register } from 'swiper/element/bundle';
+	import { getContext } from 'svelte';
+
+	interface ImageItem {
+		name?: string;
+		url: string;
+	}
+
+	let { images = getContext('images') ?? [] }: { images?: ImageItem[] | string[] } = $props();
+
+	register();
 </script>
 
 <swiper-container
@@ -16,7 +22,12 @@ class="mySwiper"
   css-mode="true"
 >
 {#each images as image}
-<swiper-slide><img src={image.url || image} alt=""></swiper-slide>
+	<swiper-slide>
+		<img
+			src={typeof image === 'string' ? image : image.url}
+			alt={typeof image === 'string' ? '' : image.name ?? ''}
+		/>
+	</swiper-slide>
 {/each}
 
 </swiper-container>

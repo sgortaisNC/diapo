@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="fr"><head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Julie &amp; Marc - Partagez vos souvenirs</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#f4c025",
+                        "background-light": "#f8f8f5",
+                        "background-dark": "#0a0a0a",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 12px;
+        }
+        @media (min-width: 640px) {
+            .gallery-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white min-h-screen selection:bg-primary/30">
+    <!-- Top Navigation Bar -->
+    <header class="sticky top-0 z-50 w-full border-b border-primary/10 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md">
+        <div class="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <span class="material-symbols-outlined text-primary text-2xl">celebration</span>
+                <h2 class="text-lg font-bold tracking-tight uppercase">Julie &amp; Marc</h2>
+            </div>
+            <button class="p-2 hover:bg-primary/10 rounded-lg transition-colors">
+                <span class="material-symbols-outlined text-white">menu</span>
+            </button>
+        </div>
+    </header>
+    <main class="max-w-5xl mx-auto px-6 pt-12 pb-32">
+        <!-- Hero Greeting Section -->
+        <section class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold tracking-tight mb-4 text-white">
+                Partagez vos souvenirs de la soirée
+            </h1>
+            <p class="text-slate-400 text-lg max-w-xl mx-auto">
+                Capturez les plus beaux instants de notre mariage et faites vivre la galerie en direct.
+            </p>
+        </section>
+        <!-- Active Upload Progress (Hidden by default or shown during upload) -->
+        <div class="mb-12 bg-primary/5 border border-primary/20 rounded-xl p-6">
+            <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-3">
+                    <span class="material-symbols-outlined text-primary animate-pulse">cloud_upload</span>
+                    <span class="font-medium text-sm tracking-wide uppercase">Envoi de votre souvenir...</span>
+                </div>
+                <span class="text-primary font-bold text-sm">65%</span>
+            </div>
+            <div class="w-full bg-white/5 h-1.5 rounded-full overflow-hidden">
+                <div class="bg-primary h-full w-[65%] rounded-full shadow-[0_0_10px_rgba(244,192,37,0.5)] transition-all duration-500"></div>
+            </div>
+        </div>
+        <!-- Gallery Section -->
+        <section>
+            <div class="flex items-center justify-between mb-8 border-b border-white/5 pb-4">
+                <h3 class="text-xl font-semibold flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary">auto_awesome</span>
+                    Derniers moments partagés
+                </h3>
+                <span class="text-xs uppercase tracking-widest text-slate-500 font-bold">Live Feed</span>
+            </div>
+            <div class="gallery-grid">
+                <!-- Gallery Item 1 -->
+                <div class="relative group aspect-square overflow-hidden rounded-lg bg-white/5 border border-white/10 hover:border-primary/50 transition-all duration-300">
+                    <img alt="Mariage ambiance" class="object-cover w-full h-full opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-transform duration-500" data-alt="Wedding reception hall with warm lighting and flowers" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCKh9zseqPVZpEcsuqzDBDr4h-HakIsN_EYziDOPcH-Kb7omudCvEVJUIG9zUxa5sN_8kTMQq_MK7P0D_snlv9z0v_4Kfa51bcMymOlA33WrGLUaYp1yTdi1hQ45Nv279DxkV5ol-OlAOYldrvXG367N3-zYf7TQPtLe1LTwjnCCPetaT7GtGGIo6QL0x02FZsKWDOi5iwdf0C13l_u_2yO6AVWlPtdWdsF7uETS-gJgv4V7RQV5v-u7Yyqf7tHjQUMrSPfFp1Np_z6"/>
+                    <div class="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                        <p class="text-[10px] uppercase tracking-tighter text-primary font-bold">Posté par Sophie</p>
+                    </div>
+                </div>
+                <!-- Gallery Item 2 -->
+                <div class="relative group aspect-square overflow-hidden rounded-lg bg-white/5 border border-white/10 hover:border-primary/50 transition-all duration-300">
+                    <img alt="Alliances" class="object-cover w-full h-full opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-transform duration-500" data-alt="Detailed shot of wedding rings on a velvet cushion" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA-gEJXlxlfqjAcadgzySCkFt-nKaoWAhirQHahSUm8gZ_sGl4sCuVIfYy3jQeLr36CwTPi1KkMduPFDCFF5MebqXVI2VIzAIl8dxdSehJ2nh5jeo8Nmo8wrt3oH8umefEY0HXcy3tjH555fkxv3469r2qMbzoqIuMlRc0LPN2yr5cFGothkQzYcqzEHkee11izaKdAq9XIeEYMOz4-w2LLClcVKJ6QNSOgE2NIq4meKWw-RAVK9N7oP-KjNfqJ-RBZ9jqk4fFyzIc1"/>
+                </div>
+                <!-- Gallery Item 3 -->
+                <div class="relative group aspect-square overflow-hidden rounded-lg bg-white/5 border border-white/10 hover:border-primary/50 transition-all duration-300">
+                    <img alt="Cocktail" class="object-cover w-full h-full opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-transform duration-500" data-alt="Elegant cocktail glasses at a wedding party" src="https://lh3.googleusercontent.com/aida-public/AB6AXuARMdGZSVkbZpSKXXzMo85DUTE3a1yeG_Gu2DNDdyB1rwe3-yslSN81810XrwEBbM5BPEiJPkGE4rkW-F82o363oAMpzYQevgjqSg4diUzu-xTsJSr374t2AWZR2H_enJkcBT5Dvx62Ifqxlo7cAvJRs0viuqdcAtngjK79UM2QwrtfnIZKXs6d4gqWtIFclSk01NKRyGDnpQT1m5KhyaNz2UrnMP1pv5VXtQP7R8uKDJVYH-YOkInSwZ7plW07V4IFavx8IXpTtV33"/>
+                </div>
+                <!-- Gallery Item 4 -->
+                <div class="relative group aspect-square overflow-hidden rounded-lg bg-white/5 border border-white/10 hover:border-primary/50 transition-all duration-300">
+                    <img alt="Couple" class="object-cover w-full h-full opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-transform duration-500" data-alt="Happy couple dancing under golden fairy lights" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC0PizyHt4uUXqbTjKcYBfvg86pBMgzq2yLGpYImLcYbM0Z7rPDDQWAbQs1WcR7sxbYyqlackSM0xojg29xewnXKMkb308bKA4kT2JpBey0zktp68Ms_chgKDe2rMhbPZJ3kw6CY4nx90IiVhkZV7dMNnkaaOuEhjSBqz1W12-73qSM5p1DitiIWh-QqMWlTk7ZnD5OpwIUZPKUE8q30x1wT-WZEuuynodPJ693hbU1CDgtHd6RUtR26ZbUmMRthc7G72XBaXsTMtpb"/>
+                </div>
+                <!-- Gallery Item 5 -->
+                <div class="relative group aspect-square overflow-hidden rounded-lg bg-white/5 border border-white/10 hover:border-primary/50 transition-all duration-300">
+                    <img alt="Cake" class="object-cover w-full h-full opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-transform duration-500" data-alt="Multi-tiered white wedding cake with gold leaf" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAM26wwNuLs4MmKZIJ_EwIrwDEXSEvVZ6fTyuh5OixpaRQTA5uwvWo8EueLfmm-85ngJoIIvyU4r-Mr2dRn17DPm5qoPQA1W_wdxcWLe2kW9mQijgofp1E_-LuZxeECQAC2x05HLO2xGnj8dIfVqVe2BrDVbNi1CkXzBQWe9brmQV4fObmX538uALogi2wTM-j5URAPfliTpOsb-xokiN73vMxiRcq-Ax7gQxu3SayIIxZwP6Giyl27OVDnI6RRRaAoSQamsaD6bazX"/>
+                </div>
+                <!-- Gallery Item 6 (Skeleton placeholder) -->
+                <div class="aspect-square rounded-lg bg-white/5 border border-dashed border-white/10 flex flex-col items-center justify-center gap-2">
+                    <span class="material-symbols-outlined text-white/20 animate-pulse text-4xl">image</span>
+                    <span class="text-[10px] uppercase text-white/20 tracking-widest">En attente...</span>
+                </div>
+            </div>
+        </section>
+    </main>
+    <!-- Fixed Bottom Upload Section -->
+    <footer class="fixed bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-background-dark via-background-dark/95 to-transparent z-50">
+        <div class="max-w-md mx-auto flex flex-col items-center gap-4">
+            <button class="w-full h-16 bg-primary text-background-dark font-bold text-lg rounded-xl flex items-center justify-center gap-3 shadow-[0_8px_30px_rgb(244,192,37,0.3)] hover:translate-y-[-2px] active:scale-95 transition-all">
+                <span class="material-symbols-outlined font-bold text-2xl">add_a_photo</span>
+                TÉLÉCHARGER UNE PHOTO
+            </button>
+            <p class="text-[10px] text-slate-500 uppercase tracking-widest text-center">
+                Les photos sont partagées avec Julie &amp; Marc. Respectez l'intimité des invités.
+            </p>
+        </div>
+    </footer>
+</body></html>

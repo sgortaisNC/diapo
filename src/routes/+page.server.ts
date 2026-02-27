@@ -1,23 +1,40 @@
-import { list } from '@vercel/blob';
 import { env } from '$env/dynamic/private';
+import mysql from 'mysql2/promise';
 
 export async function load() {
-  try {
-    const token = env.BLOB_READ_WRITE_TOKEN;
-    
-    // Lister tous les blobs depuis Vercel Blob
-    const { blobs } = await list({ token });
-    
-    // Extraire les noms de fichiers et URLs
-    const fileList = blobs.map(blob => ({
-      name: blob.pathname.split('/').pop() || blob.pathname,
-      url: blob.url
-    }));
-    
-    return { fileList };
-  } catch (error: any) {
-    console.error('Error loading blobs:', error);
-    // Retourner une liste vide en cas d'erreur pour ne pas casser la page
-    return { fileList: [] };
-  }
+	const host = env.BDD_HOST;
+	const user = env.BDD_USERNAME;
+	const password = env.BDD_PASSWORD;
+	const database = env.BDD_NAME;
+
+	if (!host || !user || !password || !database) {
+		return { fileList: [] };
+	}
+
+	try {
+		const connection = await mysql.createConnection({
+			host,
+			user,
+			password,
+			database
+		});
+
+		// Pour l'écran principal, on affiche toutes les images non rejetées
+		// On privilégie image_src (URL publique), avec fallback sur image_url
+		const [rows] = await connection.execute(
+			'SELECT depositor_name, COALESCE(image_src, image_url) AS src FROM images WHERE validation_status != ? ORDER BY created_at DESC',
+			['rejected']
+		);
+		await connection.end();
+
+		const fileList = (rows as any[]).map((row) => ({
+			name: row.depositor_name as string,
+			url: row.src as string
+		}));
+
+		return { fileList };
+	} catch (error) {
+		console.error('Error loading images from database:', error);
+		return { fileList: [] };
+	}
 }
