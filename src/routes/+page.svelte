@@ -95,7 +95,7 @@
 
 <div class="relative h-screen w-full flex flex-col items-center justify-center bg-background-dark text-white font-display overflow-hidden">
 	<div class="absolute inset-0 z-0">
-		<SwiperContainer {images} on:slideChange={handleSlideChange} />
+		<SwiperContainer {images} autoplayDelay={durationMs} on:slideChange={handleSlideChange} />
 	</div>
 	<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40 pointer-events-none z-10" aria-hidden="true"></div>
 

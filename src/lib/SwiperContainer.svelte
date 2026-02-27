@@ -9,7 +9,10 @@ interface ImageItem {
 
 const dispatch = createEventDispatcher();
 
-let { images = getContext('images') ?? [] }: { images?: ImageItem[] | string[] } = $props();
+let {
+	images = getContext('images') ?? [],
+	autoplayDelay = 10000
+}: { images?: ImageItem[] | string[]; autoplayDelay?: number } = $props();
 
 let swiperEl: HTMLElement;
 
@@ -36,7 +39,7 @@ onMount(() => {
 	slides-per-view="1"
 	effect="fade"
 	fade-effect-cross-fade="true"
-	autoplay-delay="10000"
+	autoplay-delay={autoplayDelay}
 	autoplay-disable-on-interaction="false"
 >
 {#each images as image}
