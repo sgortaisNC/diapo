@@ -46,7 +46,8 @@
 		if (saved != null) {
 			const parsed = Number(saved);
 			if (!Number.isNaN(parsed) && parsed >= 0) {
-				currentIndex = parsed;
+				const maxIndex = Math.max(0, (images.length || 1) - 1);
+				currentIndex = Math.min(parsed, maxIndex);
 			}
 			sessionStorage.removeItem('diapo-current-index');
 		}
