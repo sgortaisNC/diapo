@@ -83,7 +83,7 @@ $effect(() => {
 	>
 		<div class="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
 			<div class="flex items-center gap-3">
-				<span class="material-symbols-outlined text-primary text-2xl">Mon tableau de bord</span>
+				<span class="text-primary text-2xl">Mes photos</span>
 			</div>
 		</div>
 	</header>
@@ -122,7 +122,6 @@ $effect(() => {
 					<span class="material-symbols-outlined text-primary">auto_awesome</span>
 					Derniers moments partagés
 				</h3>
-				<span class="text-xs uppercase tracking-widest text-slate-500 font-bold">Live Feed</span>
 			</div>
 			<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 md:gap-6">
 				{#each fileList as file (file.url)}
@@ -185,7 +184,7 @@ $effect(() => {
 				</label>
 			</form>
 			<p class="text-[10px] text-slate-500 uppercase tracking-widest text-center">
-				Les photos sont partagées avec {settings.host_names}. Respectez l'intimité des invités.
+				Les photos sont partagées avec tout le monde. Pas de bêtises, merci !
 			</p>
 		</div>
 	</footer>

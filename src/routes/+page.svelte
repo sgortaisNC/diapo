@@ -1,9 +1,12 @@
 <script lang="ts">
 	import type { PageProps } from './$types';
 	import SwiperContainer from '$lib/SwiperContainer.svelte';
+	import { browser } from '$app/environment';
+
+	type ImageItem = { name: string; url: string };
 
 	let { data }: PageProps = $props();
-	const images = $derived(data.fileList ?? []);
+	let images = $state<ImageItem[]>([]);
 	const settings = $derived(data.settings);
 
 	const durationSeconds = $derived(settings.slider_interval_seconds || 10);
@@ -14,6 +17,7 @@
 	let remainingMs = $state(0);
 
 	let timerId: ReturnType<typeof setInterval> | null = null;
+	let refreshIntervalId: ReturnType<typeof setInterval> | null = null;
 
 	function resetTimer() {
 		remainingMs = durationSeconds * 1000;
@@ -32,11 +36,46 @@
 	}
 
 	$effect(() => {
+		images = (data.fileList ?? []) as ImageItem[];
+	});
+
+	async function refreshImages() {
+		if (!browser) return;
+		try {
+			const response = await fetch('/api/images');
+			if (!response.ok) return;
+			const data = await response.json();
+			if (!data?.fileList || !Array.isArray(data.fileList)) return;
+
+			images = data.fileList as ImageItem[];
+
+			if (currentIndex >= images.length) {
+				currentIndex = Math.max(0, images.length - 1);
+			}
+		} catch (error) {
+			console.error('Erreur lors du rafraîchissement des images :', error);
+		}
+	}
+
+	$effect(() => {
 		// Redémarre le timer si la durée change
 		resetTimer();
 		return () => {
 			if (timerId) clearInterval(timerId);
+			if (refreshIntervalId) clearInterval(refreshIntervalId);
 		};
+	});
+
+	$effect(() => {
+		if (!browser) return;
+
+		// Premier rafraîchissement immédiat
+		refreshImages();
+
+		// Puis rafraîchissement régulier toutes les 30 secondes
+		refreshIntervalId = setInterval(() => {
+			refreshImages();
+		}, 30000);
 	});
 
 	function handleSlideChange(event: CustomEvent<{ activeIndex: number }>) {
@@ -76,7 +115,7 @@
 			>
 				<span class="material-symbols-outlined text-primary text-xl">timer</span>
 				<p class="text-sm font-semibold tracking-widest text-primary/90">
-					Prochaine photo dans {remainingSeconds}s
+					{remainingSeconds}s
 				</p>
 			</div>
 		</div>
@@ -95,15 +134,12 @@
 				style="background: rgba(34, 30, 16, 0.6)"
 			>
 				<p class="text-primary/70 text-xs font-bold tracking-[0.3em] uppercase">
-					Moments partagés
-				</p>
-				<h2 class="text-4xl font-bold text-white tracking-tight">
 					{#if currentDepositorName}
 						{settings.hero_caption_prefix} {currentDepositorName}
 					{:else}
 						Galerie en direct
 					{/if}
-				</h2>
+				</p>
 			</div>
 		</div>
 		<div class="flex flex-col items-end gap-6">
@@ -114,7 +150,7 @@
 				<div class="flex flex-col text-right gap-1">
 					<h3 class="text-xl font-bold text-white">Rejoignez la galerie</h3>
 					<p class="text-sm text-white/60 max-w-[220px]">
-						Flashez le QR code ou allez sur diapo-xi.vercel.app/dashboard
+						Flashez le QR code ou allez sur
 					</p>
 					<a href="/dashboard" class="text-xs font-mono text-primary mt-2"
 						>diapo-xi.vercel.app/dashboard</a
@@ -129,12 +165,6 @@
 					<span class="material-symbols-outlined text-primary text-sm">photo_library</span>
 					<span class="text-white/80 text-xs font-bold tracking-widest uppercase">
 						{images.length} photos
-					</span>
-				</div>
-				<div class="flex items-center gap-2 border-l border-white/20 pl-4">
-					<span class="material-symbols-outlined text-primary text-sm">group</span>
-					<span class="text-white/80 text-xs font-bold tracking-widest uppercase">
-						142 {settings.guest_count_label}
 					</span>
 				</div>
 			</div>
