@@ -42,15 +42,29 @@
 	async function refreshImages() {
 		if (!browser) return;
 		try {
+			const previousImages = images;
+			const previousCurrentImage = previousImages[currentIndex];
+
 			const response = await fetch('/api/images');
 			if (!response.ok) return;
 			const data = await response.json();
 			if (!data?.fileList || !Array.isArray(data.fileList)) return;
 
-			images = data.fileList as ImageItem[];
+			const newImages = data.fileList as ImageItem[];
+			images = newImages;
 
-			if (currentIndex >= images.length) {
-				currentIndex = Math.max(0, images.length - 1);
+			if (previousCurrentImage) {
+				const sameIndex = newImages.findIndex(
+					(img) => img.url === previousCurrentImage.url && img.name === previousCurrentImage.name
+				);
+
+				if (sameIndex !== -1) {
+					currentIndex = sameIndex;
+				} else if (currentIndex >= newImages.length) {
+					currentIndex = Math.max(0, newImages.length - 1);
+				}
+			} else if (currentIndex >= newImages.length) {
+				currentIndex = Math.max(0, newImages.length - 1);
 			}
 		} catch (error) {
 			console.error('Erreur lors du rafraîchissement des images :', error);
@@ -85,6 +99,7 @@
 
 	const remainingSeconds = $derived(Math.ceil(remainingMs / 1000));
 	const currentDepositorName = $derived(images[currentIndex]?.name ?? '');
+	const hasImages = $derived(images.length > 0);
 </script>
 
 <svelte:head>
@@ -134,7 +149,7 @@
 				style="background: rgba(34, 30, 16, 0.6)"
 			>
 				<p class="text-primary/70 text-xs font-bold tracking-[0.3em] uppercase">
-					{#if currentDepositorName}
+					{#if hasImages}
 						{settings.hero_caption_prefix} {currentDepositorName}
 					{:else}
 						Galerie en direct
