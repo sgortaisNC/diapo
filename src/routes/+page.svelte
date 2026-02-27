@@ -48,11 +48,19 @@
 			if (!data?.fileList || !Array.isArray(data.fileList)) return;
 
 			const newImages = data.fileList as ImageItem[];
-			const existingUrls = new Set(images.map((i) => i.url));
-			const toAdd = newImages.filter((item) => !existingUrls.has(item.url));
+			const newUrls = new Set(newImages.map((i) => i.url));
+			const oldUrls = new Set(images.map((i) => i.url));
+
+			const toAdd = newImages.filter((item) => !oldUrls.has(item.url));
+			const toRemove = new Set(
+				Array.from(oldUrls).filter((url) => !newUrls.has(url))
+			);
+
+			let updatedImages = images.filter((img) => !toRemove.has(img.url));
 			if (toAdd.length > 0) {
-				images = [...images, ...toAdd];
+				updatedImages = [...updatedImages, ...toAdd];
 			}
+			images = updatedImages;
 
 			if (currentIndex >= images.length) {
 				currentIndex = Math.max(0, images.length - 1);
