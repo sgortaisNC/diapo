@@ -42,9 +42,6 @@
 	async function refreshImages() {
 		if (!browser) return;
 		try {
-			const previousImages = images;
-			const previousCurrentImage = previousImages[currentIndex];
-
 			const response = await fetch('/api/images');
 			if (!response.ok) return;
 			const data = await response.json();
@@ -53,17 +50,7 @@
 			const newImages = data.fileList as ImageItem[];
 			images = newImages;
 
-			if (previousCurrentImage) {
-				const sameIndex = newImages.findIndex(
-					(img) => img.url === previousCurrentImage.url && img.name === previousCurrentImage.name
-				);
-
-				if (sameIndex !== -1) {
-					currentIndex = sameIndex;
-				} else if (currentIndex >= newImages.length) {
-					currentIndex = Math.max(0, newImages.length - 1);
-				}
-			} else if (currentIndex >= newImages.length) {
+			if (currentIndex >= newImages.length) {
 				currentIndex = Math.max(0, newImages.length - 1);
 			}
 		} catch (error) {
