@@ -83,12 +83,8 @@ $effect(() => {
 	>
 		<div class="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
 			<div class="flex items-center gap-3">
-				<span class="material-symbols-outlined text-primary text-2xl">celebration</span>
-				<h2 class="text-lg font-bold tracking-tight uppercase">{settings.host_names}</h2>
+				<span class="material-symbols-outlined text-primary text-2xl">Mon tableau de bord</span>
 			</div>
-			<a href="/" class="p-2 hover:bg-primary/10 rounded-lg transition-colors">
-				<span class="material-symbols-outlined text-white">menu</span>
-			</a>
 		</div>
 	</header>
 
