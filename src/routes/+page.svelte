@@ -48,10 +48,14 @@
 			if (!data?.fileList || !Array.isArray(data.fileList)) return;
 
 			const newImages = data.fileList as ImageItem[];
-			images = newImages;
+			const existingUrls = new Set(images.map((i) => i.url));
+			const toAdd = newImages.filter((item) => !existingUrls.has(item.url));
+			if (toAdd.length > 0) {
+				images = [...images, ...toAdd];
+			}
 
-			if (currentIndex >= newImages.length) {
-				currentIndex = Math.max(0, newImages.length - 1);
+			if (currentIndex >= images.length) {
+				currentIndex = Math.max(0, images.length - 1);
 			}
 		} catch (error) {
 			console.error('Erreur lors du rafraîchissement des images :', error);

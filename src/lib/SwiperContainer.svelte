@@ -1,6 +1,6 @@
 <script lang="ts">
 import { register } from 'swiper/element/bundle';
-import { getContext, onMount, createEventDispatcher } from 'svelte';
+import { getContext, onMount, createEventDispatcher, tick } from 'svelte';
 
 interface ImageItem {
 	name?: string;
@@ -28,6 +28,15 @@ onMount(() => {
 		dispatch('slideChange', { activeIndex: instance.realIndex ?? instance.activeIndex ?? 0 });
 	});
 });
+
+// Après ajout de slides, dire à Swiper de recalculer (slides, pagination, etc.)
+$effect(() => {
+	const _ = images;
+	tick().then(() => {
+		// @ts-expect-error - swiper est ajouté dynamiquement par la lib
+		if (swiperEl?.swiper) swiperEl.swiper.update();
+	});
+});
 </script>
 
 <swiper-container
@@ -42,7 +51,7 @@ onMount(() => {
 	autoplay-delay={autoplayDelay}
 	autoplay-disable-on-interaction="false"
 >
-{#each images as image}
+{#each images as image (typeof image === 'string' ? image : image.url)}
 	<swiper-slide>
 		<img
 			src={typeof image === 'string' ? image : image.url}
