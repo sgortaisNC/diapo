@@ -11,8 +11,13 @@ const dispatch = createEventDispatcher();
 
 let {
 	images = getContext('images') ?? [],
-	autoplayDelay = 10000
-}: { images?: ImageItem[] | string[]; autoplayDelay?: number } = $props();
+	autoplayDelay = 10000,
+	currentIndex = 0
+}: {
+	images?: ImageItem[] | string[];
+	autoplayDelay?: number;
+	currentIndex?: number;
+} = $props();
 
 let swiperEl: HTMLElement;
 
@@ -36,6 +41,23 @@ $effect(() => {
 		// @ts-expect-error - swiper est ajouté dynamiquement par la lib
 		if (swiperEl?.swiper) swiperEl.swiper.update();
 	});
+});
+
+// Synchroniser l'index courant venant du parent avec Swiper
+$effect(() => {
+	const targetIndex = currentIndex ?? 0;
+	// @ts-expect-error - swiper est ajouté dynamiquement par la lib
+	const instance = swiperEl?.swiper;
+	if (!instance) return;
+
+	const active =
+		typeof instance.realIndex === 'number'
+			? instance.realIndex
+			: instance.activeIndex ?? 0;
+
+	if (typeof targetIndex === 'number' && targetIndex >= 0 && targetIndex !== active) {
+		instance.slideTo(targetIndex);
+	}
 });
 </script>
 

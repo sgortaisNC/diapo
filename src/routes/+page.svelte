@@ -39,6 +39,19 @@
 		images = (data.fileList ?? []) as ImageItem[];
 	});
 
+	// Restaurer l'index courant après un refresh forcé
+	$effect(() => {
+		if (!browser) return;
+		const saved = sessionStorage.getItem('diapo-current-index');
+		if (saved != null) {
+			const parsed = Number(saved);
+			if (!Number.isNaN(parsed) && parsed >= 0) {
+				currentIndex = parsed;
+			}
+			sessionStorage.removeItem('diapo-current-index');
+		}
+	});
+
 	async function refreshImages() {
 		if (!browser) return;
 		try {
@@ -48,19 +61,24 @@
 			if (!data?.fileList || !Array.isArray(data.fileList)) return;
 
 			const newImages = data.fileList as ImageItem[];
-			const newUrls = new Set(newImages.map((i) => i.url));
-			const oldUrls = new Set(images.map((i) => i.url));
 
-			const toAdd = newImages.filter((item) => !oldUrls.has(item.url));
-			const toRemove = new Set(
-				Array.from(oldUrls).filter((url) => !newUrls.has(url))
-			);
-
-			let updatedImages = images.filter((img) => !toRemove.has(img.url));
-			if (toAdd.length > 0) {
-				updatedImages = [...updatedImages, ...toAdd];
+			// Si le backend renvoie moins d'images qu'actuellement,
+			// on force un refresh complet de la page,
+			// en mémorisant l'index courant.
+			if (newImages.length < images.length) {
+				if (browser) {
+					sessionStorage.setItem('diapo-current-index', String(currentIndex));
+					location.reload();
+				}
+				return;
 			}
-			images = updatedImages;
+
+			// Version sans suppression : on n'ajoute que les nouvelles images
+			const existingUrls = new Set(images.map((i) => i.url));
+			const toAdd = newImages.filter((item) => !existingUrls.has(item.url));
+			if (toAdd.length > 0) {
+				images = [...images, ...toAdd];
+			}
 
 			if (currentIndex >= images.length) {
 				currentIndex = Math.max(0, images.length - 1);
@@ -107,7 +125,12 @@
 
 <div class="relative h-screen w-full flex flex-col items-center justify-center bg-background-dark text-white font-display overflow-hidden">
 	<div class="absolute inset-0 z-0">
-		<SwiperContainer {images} autoplayDelay={durationMs} on:slideChange={handleSlideChange} />
+		<SwiperContainer
+			{images}
+			autoplayDelay={durationMs}
+			{currentIndex}
+			on:slideChange={handleSlideChange}
+		/>
 	</div>
 	<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40 pointer-events-none z-10" aria-hidden="true"></div>
 
