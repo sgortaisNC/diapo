@@ -62,22 +62,15 @@
 
 			const newImages = data.fileList as ImageItem[];
 
-			// Si le backend renvoie moins d'images qu'actuellement,
+			// Si le nombre d'images change (ajout ou suppression),
 			// on force un refresh complet de la page,
 			// en mémorisant l'index courant.
-			if (newImages.length < images.length) {
+			if (newImages.length !== images.length) {
 				if (browser) {
 					sessionStorage.setItem('diapo-current-index', String(currentIndex));
 					location.reload();
 				}
 				return;
-			}
-
-			// Version sans suppression : on n'ajoute que les nouvelles images
-			const existingUrls = new Set(images.map((i) => i.url));
-			const toAdd = newImages.filter((item) => !existingUrls.has(item.url));
-			if (toAdd.length > 0) {
-				images = [...images, ...toAdd];
 			}
 
 			if (currentIndex >= images.length) {

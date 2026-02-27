@@ -28,7 +28,7 @@ export const GET: RequestHandler = async () => {
 		});
 
 		const [rows] = await connection.execute(
-			'SELECT depositor_name, COALESCE(image_src, image_url) AS src FROM images WHERE validation_status != ? ORDER BY created_at DESC',
+			'SELECT depositor_name, COALESCE(image_src, image_url) AS src FROM images WHERE validation_status != ? ORDER BY created_at ASC',
 			['rejected']
 		);
 		await connection.end();
