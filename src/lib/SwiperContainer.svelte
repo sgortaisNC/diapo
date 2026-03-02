@@ -12,11 +12,13 @@ const dispatch = createEventDispatcher();
 let {
 	images = getContext('images') ?? [],
 	autoplayDelay = 10000,
-	currentIndex = 0
+	currentIndex = 0,
+	transitionMs = 800
 }: {
 	images?: ImageItem[] | string[];
 	autoplayDelay?: number;
 	currentIndex?: number;
+	transitionMs?: number;
 } = $props();
 
 let swiperEl: HTMLElement;
@@ -65,8 +67,8 @@ $effect(() => {
 	bind:this={swiperEl}
 	class="mySwiper"
 	space-between="30"
-	loop="true"
-	speed="800"
+	loop={images.length > 1}
+	speed={transitionMs}
 	slides-per-view="1"
 	effect="fade"
 	fade-effect-cross-fade="true"

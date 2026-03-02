@@ -10,7 +10,9 @@
 	const settings = $derived(data.settings);
 
 	const durationSeconds = $derived(settings.slider_interval_seconds || 10);
-	const durationMs = $derived(durationSeconds * 1000);
+	const transitionMs = 800;
+	const totalCycleMs = $derived(durationSeconds * 1000);
+	const autoplayDelayMs = $derived(Math.max(0, totalCycleMs - transitionMs));
 
 	let currentIndex = $state(0);
 	let progress = $state(0);
@@ -20,7 +22,7 @@
 	let refreshIntervalId: ReturnType<typeof setInterval> | null = null;
 
 	function resetTimer() {
-		remainingMs = durationSeconds * 1000;
+		remainingMs = totalCycleMs;
 		progress = 0;
 		if (timerId) {
 			clearInterval(timerId);
@@ -28,29 +30,33 @@
 		timerId = setInterval(() => {
 			remainingMs -= 100;
 			if (remainingMs <= 0) {
-				remainingMs = durationSeconds * 1000;
+				remainingMs = totalCycleMs;
 			}
-			const total = durationSeconds * 1000 || 1;
+			const total = totalCycleMs || 1;
 			progress = 1 - remainingMs / total;
 		}, 100);
 	}
 
 	$effect(() => {
-		images = (data.fileList ?? []) as ImageItem[];
+		const base = (data.fileList ?? []) as ImageItem[];
+		// Mélange simple pour un ordre aléatoire à chaque chargement
+		images = [...base].sort(() => Math.random() - 0.5);
 	});
 
-	// Restaurer l'index courant après un refresh forcé
+	// Restaurer la photo courante après un refresh forcé (via son URL)
 	$effect(() => {
 		if (!browser) return;
-		const saved = sessionStorage.getItem('diapo-current-index');
-		if (saved != null) {
-			const parsed = Number(saved);
-			if (!Number.isNaN(parsed) && parsed >= 0) {
-				const maxIndex = Math.max(0, (images.length || 1) - 1);
-				currentIndex = Math.min(parsed, maxIndex);
-			}
-			sessionStorage.removeItem('diapo-current-index');
+		// Attendre que la liste des images soit initialisée
+		if (images.length === 0) return;
+
+		const savedUrl = sessionStorage.getItem('diapo-current-url');
+		if (!savedUrl) return;
+
+		const idx = images.findIndex((img) => img.url === savedUrl);
+		if (idx >= 0) {
+			currentIndex = idx;
 		}
+		sessionStorage.removeItem('diapo-current-url');
 	});
 
 	async function refreshImages() {
@@ -65,10 +71,13 @@
 
 			// Si le nombre d'images change (ajout ou suppression),
 			// on force un refresh complet de la page,
-			// en mémorisant l'index courant.
+			// en mémorisant l'URL de la photo courante.
 			if (newImages.length !== images.length) {
 				if (browser) {
-					sessionStorage.setItem('diapo-current-index', String(currentIndex));
+					const currentUrl = images[currentIndex]?.url;
+					if (currentUrl) {
+						sessionStorage.setItem('diapo-current-url', currentUrl);
+					}
 					location.reload();
 				}
 				return;
@@ -121,8 +130,9 @@
 	<div class="absolute inset-0 z-0">
 		<SwiperContainer
 			{images}
-			autoplayDelay={durationMs}
+			autoplayDelay={autoplayDelayMs}
 			{currentIndex}
+			transitionMs={transitionMs}
 			on:slideChange={handleSlideChange}
 		/>
 	</div>
