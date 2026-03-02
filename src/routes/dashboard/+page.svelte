@@ -10,20 +10,22 @@ const settings = $derived(data.settings);
 
 	let fileList = $state<FileItem[]>([]);
 	let uploadProgress = $state<number | null>(null);
-let guestName = $state<string>('');
+	let guestName = $state<string>('');
+	let showNameDialog = $state(false);
+	let nameInput = $state('');
 
-$effect(() => {
-	if (!browser) return;
-	localStorage.setItem('guestName', guestName);
-});
+	const STORAGE_KEY = 'diapo-guest-name';
 
 	onMount(() => {
 		const serverList = data.fileList ?? [];
 		if (browser) {
-		const storedName = localStorage.getItem('guestName');
-		if (storedName) {
-			guestName = storedName;
-		}
+			const storedName = localStorage.getItem(STORAGE_KEY) ?? localStorage.getItem('guestName');
+			if (storedName) {
+				guestName = storedName;
+				localStorage.setItem(STORAGE_KEY, storedName);
+			} else {
+				showNameDialog = true;
+			}
 			const stored = localStorage.getItem('fileList');
 			if (stored) {
 				try {
@@ -45,8 +47,33 @@ $effect(() => {
 		}
 	});
 
+	function openNameDialog() {
+		nameInput = guestName;
+		showNameDialog = true;
+	}
+
+	function submitName(e: Event) {
+		e.preventDefault();
+		const trimmed = nameInput.trim();
+		if (trimmed) {
+			guestName = trimmed;
+			if (browser) localStorage.setItem(STORAGE_KEY, trimmed);
+			showNameDialog = false;
+		}
+	}
+
+	function closeNameDialog() {
+		if (guestName) {
+			showNameDialog = false;
+		}
+	}
+
 	async function handleSubmit(event: Event) {
 		event.preventDefault();
+		if (!guestName.trim()) {
+			showNameDialog = true;
+			return;
+		}
 		const form = event.target as HTMLFormElement;
 		const formData = new FormData(form);
 		uploadProgress = 0;
@@ -85,8 +112,46 @@ $effect(() => {
 			<div class="flex items-center gap-3">
 				<span class="text-primary text-2xl">Mes photos</span>
 			</div>
+			<button
+				type="button"
+				onclick={openNameDialog}
+				class="flex items-center gap-2 px-4 py-2 rounded-lg border border-primary/30 text-primary/90 hover:bg-primary/10 transition-colors text-sm font-medium"
+				title="Changer le nom"
+			>
+				<span class="material-symbols-outlined text-lg">badge</span>
+				<span class="hidden sm:inline">{guestName || 'Mon nom'}</span>
+			</button>
 		</div>
 	</header>
+
+	{#if showNameDialog}
+		<div
+			class="name-dialog-backdrop"
+			role="dialog"
+			aria-modal="true"
+			aria-labelledby="name-dialog-title"
+			tabindex="-1"
+			onkeydown={(e) => {
+				if (e.key === 'Escape') closeNameDialog();
+			}}
+			onclick={(e) => e.target === e.currentTarget && closeNameDialog()}
+		>
+			<div class="name-dialog-box">
+				<h2 id="name-dialog-title" class="name-dialog-title">Comment vous appelez-vous ?</h2>
+				<p class="name-dialog-desc">Ce nom sera affiché à côté de vos photos partagées.</p>
+				<form onsubmit={submitName} class="name-dialog-form">
+					<input
+						type="text"
+						bind:value={nameInput}
+						placeholder="Votre nom et prénom"
+						class="name-dialog-input"
+						required
+					/>
+					<button type="submit" class="name-dialog-submit">Valider</button>
+				</form>
+			</div>
+		</div>
+	{/if}
 
 	<main class="max-w-5xl mx-auto px-6 pt-12 pb-32">
 		<section class="text-center mb-12">
@@ -161,14 +226,7 @@ $effect(() => {
 	>
 		<div class="max-w-md mx-auto flex flex-col items-center gap-4">
 			<form action="" method="post" enctype="multipart/form-data" onsubmit={handleSubmit} class="w-full">
-				<input
-					type="text"
-					name="name"
-					bind:value={guestName}
-					placeholder="Votre nom et prénom"
-					class="mb-3 w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-primary/60"
-					required
-				/>
+				<input type="hidden" name="name" value={guestName} />
 				<label
 					class="w-full h-16 bg-primary text-background-dark font-bold text-lg rounded-xl flex items-center justify-center gap-3 shadow-[0_8px_30px_rgb(244,192,37,0.3)] hover:translate-y-[-2px] active:scale-95 transition-all cursor-pointer"
 				>
@@ -189,3 +247,88 @@ $effect(() => {
 		</div>
 	</footer>
 </div>
+
+<style>
+	.name-dialog-backdrop {
+		position: fixed;
+		inset: 0;
+		z-index: 100;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background: rgba(0, 0, 0, 0.7);
+		backdrop-filter: blur(6px);
+		animation: name-dialog-fade-in 0.2s ease-out;
+	}
+	.name-dialog-box {
+		background: linear-gradient(145deg, rgba(30, 27, 22, 0.98), rgba(20, 18, 14, 0.98));
+		border: 1px solid rgba(244, 192, 37, 0.25);
+		border-radius: 1rem;
+		padding: 2rem;
+		min-width: 320px;
+		max-width: 90vw;
+		box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(244, 192, 37, 0.08);
+		animation: name-dialog-scale-in 0.25s ease-out;
+	}
+	.name-dialog-title {
+		font-size: 1.25rem;
+		font-weight: 700;
+		color: rgba(255, 255, 255, 0.95);
+		margin: 0 0 0.5rem 0;
+		letter-spacing: 0.02em;
+	}
+	.name-dialog-desc {
+		font-size: 0.875rem;
+		color: rgba(255, 255, 255, 0.55);
+		margin: 0 0 1.5rem 0;
+		line-height: 1.4;
+	}
+	.name-dialog-form {
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+	}
+	.name-dialog-input {
+		width: 100%;
+		padding: 0.75rem 1rem;
+		border-radius: 0.5rem;
+		border: 1px solid rgba(255, 255, 255, 0.12);
+		background: rgba(255, 255, 255, 0.06);
+		color: #fff;
+		font-size: 1rem;
+		transition: border-color 0.2s, box-shadow 0.2s;
+	}
+	.name-dialog-input::placeholder {
+		color: rgba(255, 255, 255, 0.4);
+	}
+	.name-dialog-input:focus {
+		outline: none;
+		border-color: rgba(244, 192, 37, 0.5);
+		box-shadow: 0 0 0 3px rgba(244, 192, 37, 0.15);
+	}
+	.name-dialog-submit {
+		padding: 0.75rem 1.5rem;
+		background: rgb(244, 192, 37);
+		color: #1e1b16;
+		font-weight: 700;
+		font-size: 0.9rem;
+		border: none;
+		border-radius: 0.5rem;
+		cursor: pointer;
+		transition: transform 0.1s, box-shadow 0.2s;
+	}
+	.name-dialog-submit:hover {
+		box-shadow: 0 4px 20px rgba(244, 192, 37, 0.35);
+	}
+	.name-dialog-submit:active {
+		transform: scale(0.98);
+	}
+	@keyframes name-dialog-fade-in {
+		from { opacity: 0; }
+		to { opacity: 1; }
+	}
+	@keyframes name-dialog-scale-in {
+		from { opacity: 0; transform: scale(0.95); }
+		to { opacity: 1; transform: scale(1); }
+	}
+</style>
