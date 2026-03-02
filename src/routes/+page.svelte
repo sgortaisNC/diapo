@@ -2,6 +2,23 @@
 	import type { PageProps } from './$types';
 	import SwiperContainer from '$lib/SwiperContainer.svelte';
 	import { browser } from '$app/environment';
+	import QRCode from 'qrcode';
+
+	const DASHBOARD_URL = 'https://diapo-xi.vercel.app/dashboard';
+	let qrDataUrl = $state<string | null>(null);
+
+	$effect(() => {
+		if (!browser) return;
+		QRCode.toDataURL(DASHBOARD_URL, {
+			width: 256,
+			margin: 1,
+			color: { dark: '#000000', light: '#ffffff' }
+		})
+			.then((url) => {
+				qrDataUrl = url;
+			})
+			.catch((err) => console.error('QR code generation failed:', err));
+	});
 
 	type ImageItem = { name: string; url: string };
 
@@ -198,7 +215,13 @@
 					>
 				</div>
 				<div class="bg-white p-3 rounded-lg shadow-inner">
-					<a href="/dashboard" class="block size-32 bg-primary/20 rounded-lg" aria-label="QR Code to join the live event gallery"></a>
+					{#if qrDataUrl}
+						<a href="/dashboard" class="block size-32 rounded-lg overflow-hidden" aria-label="QR Code pour rejoindre la galerie">
+							<img src={qrDataUrl} alt="QR Code vers le dashboard" class="size-full object-contain" />
+						</a>
+					{:else}
+						<div class="block size-32 bg-white/80 rounded-lg animate-pulse" aria-hidden="true"></div>
+					{/if}
 				</div>
 			</div>
 			<div class="flex gap-4 pr-4">
