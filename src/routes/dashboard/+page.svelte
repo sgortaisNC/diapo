@@ -137,8 +137,8 @@ const settings = $derived(data.settings);
 			onclick={(e) => e.target === e.currentTarget && closeNameDialog()}
 		>
 			<div class="name-dialog-box">
-				<h2 id="name-dialog-title" class="name-dialog-title">Comment vous appelez-vous ?</h2>
-				<p class="name-dialog-desc">Ce nom sera affiché à côté de vos photos partagées.</p>
+				<h2 id="name-dialog-title" class="name-dialog-title">Qui es-tu ?</h2>
+				<p class="name-dialog-desc">Le nom sera affiché à côté des photos partagées.</p>
 				<form onsubmit={submitName} class="name-dialog-form">
 					<input
 						type="text"
