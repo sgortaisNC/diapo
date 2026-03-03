@@ -1,12 +1,16 @@
 import { env } from '$env/dynamic/private';
 import mysql from 'mysql2/promise';
 import { getEventSettings } from '$lib/server/eventSettings';
+import type { PageServerLoad } from './$types';
 
-export async function load() {
+export const load: PageServerLoad = async ({ url }) => {
 	const host = env.BDD_HOST;
 	const user = env.BDD_USERNAME;
 	const password = env.BDD_PASSWORD;
 	const database = env.BDD_NAME;
+
+	const rawName = url.searchParams.get('name');
+	const filteredName = rawName?.trim() || null;
 
 	if (!host || !user || !password || !database) {
 		const settings = await getEventSettings();
@@ -21,12 +25,20 @@ export async function load() {
 			database
 		});
 
-		// Sur le dashboard, on peut afficher toutes les images non rejetées
-		// On privilégie image_src (URL publique), avec fallback sur image_url
-		const [rows] = await connection.execute(
-			'SELECT depositor_name, COALESCE(image_src, image_url) AS src FROM images WHERE validation_status != ? ORDER BY created_at DESC',
-			['rejected']
-		);
+		// Sur le dashboard, on affiche les images non rejetées.
+		// Si un nom est fourni en query (?name=...), on filtre aussi par depositor_name.
+		let rows: any[];
+		if (filteredName) {
+			[rows] = await connection.execute(
+				'SELECT depositor_name, COALESCE(image_src, image_url) AS src FROM images WHERE validation_status != ? AND depositor_name = ? ORDER BY created_at DESC',
+				['rejected', filteredName]
+			);
+		} else {
+			[rows] = await connection.execute(
+				'SELECT depositor_name, COALESCE(image_src, image_url) AS src FROM images WHERE validation_status != ? ORDER BY created_at DESC',
+				['rejected']
+			);
+		}
 		await connection.end();
 
 		const fileList = (rows as any[]).map((row) => ({
@@ -42,4 +54,4 @@ export async function load() {
 		const settings = await getEventSettings();
 		return { fileList: [], settings };
 	}
-}
+};

@@ -23,6 +23,18 @@ const settings = $derived(data.settings);
 			if (storedName) {
 				guestName = storedName;
 				localStorage.setItem(STORAGE_KEY, storedName);
+
+				// Si un nom est connu mais que l'URL n'est pas encore filtrée,
+				// on recharge le dashboard avec ?name=<nom>.
+				const currentUrl = new URL(window.location.href);
+				const currentNameParam = currentUrl.searchParams.get('name');
+				if (!currentNameParam || currentNameParam !== storedName) {
+					const params = new URLSearchParams(window.location.search);
+					params.set('name', storedName);
+					const newUrl = `${window.location.pathname}?${params.toString()}`;
+					window.location.replace(newUrl);
+					return;
+				}
 			} else {
 				showNameDialog = true;
 			}
@@ -57,7 +69,14 @@ const settings = $derived(data.settings);
 		const trimmed = nameInput.trim();
 		if (trimmed) {
 			guestName = trimmed;
-			if (browser) localStorage.setItem(STORAGE_KEY, trimmed);
+			if (browser) {
+				localStorage.setItem(STORAGE_KEY, trimmed);
+				const params = new URLSearchParams(window.location.search);
+				params.set('name', trimmed);
+				const newUrl = `${window.location.pathname}?${params.toString()}`;
+				window.location.href = newUrl;
+				return;
+			}
 			showNameDialog = false;
 		}
 	}
