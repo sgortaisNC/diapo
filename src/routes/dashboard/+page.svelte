@@ -101,7 +101,7 @@ const settings = $derived(data.settings);
 </script>
 
 <svelte:head>
-	<title>{settings.host_names} - Partagez vos souvenirs</title>
+	<title>{settings.event_title} - {settings.event_subtitle}</title>
 </svelte:head>
 
 <div class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white min-h-screen selection:bg-primary/30 font-display">
