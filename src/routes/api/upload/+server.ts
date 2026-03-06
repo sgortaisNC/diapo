@@ -14,6 +14,14 @@ function slugifyName(name: string): string {
 		.replace(/^-+|-+$/g, '');
 }
 
+function addTimestampToFilename(originalName: string): string {
+	const lastDot = originalName.lastIndexOf('.');
+	const base = lastDot > 0 ? originalName.slice(0, lastDot) : originalName;
+	const ext = lastDot > 0 ? originalName.slice(lastDot) : '';
+	const timestamp = Date.now();
+	return `${base}-${timestamp}${ext}`;
+}
+
 export const POST: RequestHandler = async ({ request }) => {
 	const formData = await request.formData();
 	const file = formData.get('file') as File | null;
@@ -32,6 +40,7 @@ export const POST: RequestHandler = async ({ request }) => {
 
 	try {
 		const slug = slugifyName(guestName);
+		const uniqueFilename = addTimestampToFilename(file.name);
 
 		let ftpOk = false;
 		let dbOk = false;
@@ -63,10 +72,10 @@ export const POST: RequestHandler = async ({ request }) => {
 				const stream = Readable.from(buffer);
 
 				// On envoie le fichier dans le dossier courant (httpdocs/<slug>)
-				await client.uploadFrom(stream, file.name);
+				await client.uploadFrom(stream, uniqueFilename);
 
 				ftpOk = true;
-				ftpPath = `httpdocs/${slug}/${file.name}`;
+				ftpPath = `httpdocs/${slug}/${uniqueFilename}`;
 			} catch (error) {
 				console.error('FTP upload failed:', error);
 			} finally {
@@ -87,7 +96,7 @@ export const POST: RequestHandler = async ({ request }) => {
 
 		if (publicBase) {
 			const base = (publicBase as string).replace(/\/$/, '');
-			imageSrc = `${base}/${slug}/${file.name}`;
+			imageSrc = `${base}/${slug}/${uniqueFilename}`;
 		} else if (ftpPath) {
 			// Fallback : on enregistre le chemin FTP si aucune URL HTTP n'est disponible
 			imageSrc = ftpPath;
@@ -139,7 +148,7 @@ export const POST: RequestHandler = async ({ request }) => {
 			message: 'Image uploaded',
 			ok: true,
 			url: imageSrc,
-			filename: file.name,
+			filename: uniqueFilename,
 			ftpOk,
 			dbOk,
 			ftpPath,
