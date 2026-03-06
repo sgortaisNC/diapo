@@ -17,7 +17,8 @@ const settings = $derived(data.settings);
 	const STORAGE_KEY = 'diapo-guest-name';
 
 	onMount(() => {
-		const serverList = data.fileList ?? [];
+		const raw = data.fileList;
+		const serverList = Array.isArray(raw) ? raw : [];
 		if (browser) {
 			const storedName = localStorage.getItem(STORAGE_KEY) ?? localStorage.getItem('guestName');
 			if (storedName) {
@@ -26,8 +27,9 @@ const settings = $derived(data.settings);
 				showNameDialog = true;
 			}
 		}
-		;
-		fileList = serverList.filter((file) => file.name === guestName);
+		fileList = serverList
+			.filter((file): file is FileItem => file != null && typeof file === 'object' && file.url != null)
+			.filter((file) => file.name === guestName);
 	});
 
 	function openNameDialog() {
@@ -174,7 +176,7 @@ const settings = $derived(data.settings);
 				</h3>
 			</div>
 			<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 md:gap-6">
-				{#each fileList as file (file.url)}
+				{#each fileList as file, i (file.url || `file-${i}`)}
 					<div
 						class="relative group aspect-square overflow-hidden rounded-lg bg-white/5 border border-white/10 hover:border-primary/50 transition-all duration-300"
 					>
