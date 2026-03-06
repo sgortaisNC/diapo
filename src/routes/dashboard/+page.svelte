@@ -22,41 +22,12 @@ const settings = $derived(data.settings);
 			const storedName = localStorage.getItem(STORAGE_KEY) ?? localStorage.getItem('guestName');
 			if (storedName) {
 				guestName = storedName;
-				localStorage.setItem(STORAGE_KEY, storedName);
-
-				// Si un nom est connu mais que l'URL n'est pas encore filtrée,
-				// on recharge le dashboard avec ?name=<nom>.
-				const currentUrl = new URL(window.location.href);
-				const currentNameParam = currentUrl.searchParams.get('name');
-				if (!currentNameParam || currentNameParam !== storedName) {
-					const params = new URLSearchParams(window.location.search);
-					params.set('name', storedName);
-					const newUrl = `${window.location.pathname}?${params.toString()}`;
-					window.location.replace(newUrl);
-					return;
-				}
 			} else {
 				showNameDialog = true;
 			}
-			const stored = localStorage.getItem('fileList');
-			if (stored) {
-				try {
-					const parsed = JSON.parse(stored);
-					const merged = (parsed as (string | FileItem)[]).map((item: string | FileItem) =>
-						typeof item === 'string' ? { name: item, url: '' } : item
-					);
-					const serverUrls = new Set(serverList.map((f: FileItem) => f.url));
-					fileList = merged.filter((f: FileItem) => serverUrls.has(f.url));
-					localStorage.setItem('fileList', JSON.stringify(fileList));
-				} catch {
-					fileList = serverList;
-				}
-			} else {
-				fileList = serverList;
-			}
-		} else {
-			fileList = serverList;
 		}
+		;
+		fileList = serverList.filter((file) => file.name === guestName);
 	});
 
 	function openNameDialog() {
@@ -71,10 +42,7 @@ const settings = $derived(data.settings);
 			guestName = trimmed;
 			if (browser) {
 				localStorage.setItem(STORAGE_KEY, trimmed);
-				const params = new URLSearchParams(window.location.search);
-				params.set('name', trimmed);
-				const newUrl = `${window.location.pathname}?${params.toString()}`;
-				window.location.href = newUrl;
+				window.location.reload();
 				return;
 			}
 			showNameDialog = false;
@@ -101,7 +69,6 @@ const settings = $derived(data.settings);
 		uploadProgress = null;
 		if (result.ok && result.url) {
 			fileList = [...fileList, { name: result.filename, url: result.url }];
-			if (browser) localStorage.setItem('fileList', JSON.stringify(fileList));
 		}
 		form.reset();
 	}
@@ -114,7 +81,6 @@ const settings = $derived(data.settings);
 		const removed: { ok: boolean } = await response.json();
 		if (removed.ok) {
 			fileList = fileList.filter((f: FileItem) => f.url !== file.url);
-			if (browser) localStorage.setItem('fileList', JSON.stringify(fileList));
 		}
 	}
 </script>
@@ -187,7 +153,7 @@ const settings = $derived(data.settings);
 				<div class="flex items-center justify-between mb-3">
 					<div class="flex items-center gap-3">
 						<span class="material-symbols-outlined text-primary animate-pulse">cloud_upload</span>
-						<span class="font-medium text-sm tracking-wide uppercase">Envoi de votre souvenir...</span>
+						<span class="font-medium text-sm tracking-wide uppercase">Envoi de votre photo...</span>
 					</div>
 					<span class="text-primary font-bold text-sm">{uploadProgress ?? 0}%</span>
 				</div>

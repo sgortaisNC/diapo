@@ -8,9 +8,7 @@ export const load: PageServerLoad = async ({ url }) => {
 	const user = env.BDD_USERNAME;
 	const password = env.BDD_PASSWORD;
 	const database = env.BDD_NAME;
-
-	const rawName = url.searchParams.get('name');
-	const filteredName = rawName?.trim() || null;
+	
 
 	if (!host || !user || !password || !database) {
 		const settings = await getEventSettings();
@@ -25,26 +23,19 @@ export const load: PageServerLoad = async ({ url }) => {
 			database
 		});
 
-		// Sur le dashboard, on affiche les images non rejetées.
-		// Si un nom est fourni en query (?name=...), on filtre aussi par depositor_name.
-		let rows: any[];
-		if (filteredName) {
-			[rows] = await connection.execute(
-				'SELECT depositor_name, COALESCE(image_src, image_url) AS src FROM images WHERE validation_status != ? AND depositor_name = ? ORDER BY created_at DESC',
-				['rejected', filteredName]
-			);
-		} else {
-			[rows] = await connection.execute(
-				'SELECT depositor_name, COALESCE(image_src, image_url) AS src FROM images WHERE validation_status != ? ORDER BY created_at DESC',
-				['rejected']
-			);
-		}
+		// Sur le dashboard, on affiche uniquement les images non rejetées de cet utilisateur.
+		const [rows] = await connection.execute(
+			'SELECT depositor_name, COALESCE(image_src, image_url) AS src FROM images WHERE validation_status != ? ORDER BY created_at DESC',
+			['rejected']
+		);
 		await connection.end();
 
 		const fileList = (rows as any[]).map((row) => ({
 			name: row.depositor_name as string,
 			url: row.src as string
 		}));
+
+		console.log(fileList);
 
 		const settings = await getEventSettings();
 
